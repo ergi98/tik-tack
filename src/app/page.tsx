@@ -120,7 +120,7 @@ const Main = () => {
   };
 
   const handleLineAnimationComplete = (order: number) =>
-    order === 1 && setIsDisabled(false);
+    order === CELL_COUNT - 2 && setIsDisabled(false);
 
   return (
     <main
