@@ -32,4 +32,23 @@ const DEFAULT_SCORE_STATE = Object.freeze({
   [MOVES.CROSS]: 0,
 });
 
-export { CELL_COUNT, CELL_SIZE, BOARD, MOVES, OUTCOMES, DEFAULT_SCORE_STATE };
+const COLORS = Object.freeze({
+  [MOVES.CIRCLE]: "text-neutral-300",
+  [MOVES.CROSS]: "text-neutral-500",
+});
+
+const COLORS_HEX = Object.freeze({
+  [MOVES.CIRCLE]: "#d4d4d4",
+  [MOVES.CROSS]: "#737373",
+});
+
+export {
+  BOARD,
+  MOVES,
+  COLORS,
+  OUTCOMES,
+  CELL_SIZE,
+  CELL_COUNT,
+  COLORS_HEX,
+  DEFAULT_SCORE_STATE,
+};

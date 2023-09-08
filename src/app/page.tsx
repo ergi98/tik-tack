@@ -5,11 +5,16 @@ import { flushSync } from "react-dom";
 
 import {
   motion,
+  animate,
   useAnimate,
   usePresence,
+  useTransform,
+  useMotionValue,
   AnimatePresence,
   AnimationSequence,
 } from "framer-motion";
+
+import { interpolate } from "flubber";
 
 import type {
   Move,
@@ -26,8 +31,10 @@ import {
   CELL_SIZE,
   CELL_COUNT,
   DEFAULT_SCORE_STATE,
+  COLORS_HEX,
 } from "./libs/constants";
 import { checkForWinner, getNextMove, getMoveColor } from "./libs/helpers";
+import { circlePath, crossPath } from "./libs/paths";
 
 const Main = () => {
   const [isDisabled, setIsDisabled] = useState(true);
@@ -124,6 +131,9 @@ const Main = () => {
   useEffect(() => {
     window.addEventListener("resize", handleResize);
 
+    if (mainRef.current)
+      mainRef.current.style.height = `${window?.innerHeight}px`;
+
     return () => {
       window.removeEventListener("resize", handleResize);
     };
@@ -136,11 +146,7 @@ const Main = () => {
   };
 
   return (
-    <main
-      ref={mainRef}
-      className="w-full"
-      style={{ height: window.innerHeight }}
-    >
+    <main ref={mainRef} className="w-full">
       <section
         ref={scope}
         className="h-full flex flex-col items-center justify-between py-12"
@@ -204,7 +210,7 @@ const Line: React.FC<LineProps> = ({
 const Cross: React.FC = () => {
   return (
     <svg width="24" height="24" className="fill-current">
-      <path d="M6.2253 4.81108C5.83477 4.42056 5.20161 4.42056 4.81108 4.81108C4.42056 5.20161 4.42056 5.83477 4.81108 6.2253L10.5858 12L4.81114 17.7747C4.42062 18.1652 4.42062 18.7984 4.81114 19.1889C5.20167 19.5794 5.83483 19.5794 6.22535 19.1889L12 13.4142L17.7747 19.1889C18.1652 19.5794 18.7984 19.5794 19.1889 19.1889C19.5794 18.7984 19.5794 18.1652 19.1889 17.7747L13.4142 12L19.189 6.2253C19.5795 5.83477 19.5795 5.20161 19.189 4.81108C18.7985 4.42056 18.1653 4.42056 17.7748 4.81108L12 10.5858L6.2253 4.81108Z" />
+      <path fillRule="evenodd" clipRule="evenodd" d={crossPath} />
     </svg>
   );
 };
@@ -212,11 +218,7 @@ const Cross: React.FC = () => {
 const Circle: React.FC = () => {
   return (
     <svg width="24" height="24" className="fill-current">
-      <path
-        fillRule="evenodd"
-        clipRule="evenodd"
-        d="M12 17C14.7614 17 17 14.7614 17 12C17 9.23858 14.7614 7 12 7C9.23858 7 7 9.23858 7 12C7 14.7614 9.23858 17 12 17ZM12 20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4C7.58172 4 4 7.58172 4 12C4 16.4183 7.58172 20 12 20Z"
-      />
+      <path fillRule="evenodd" clipRule="evenodd" d={circlePath} />
     </svg>
   );
 };
@@ -347,6 +349,31 @@ const GameScore: React.FC<GameScoreProps> = ({ score }) => {
 
 const TurnIndicator: React.FC<TurnIndicatorProps> = ({ state }) => {
   const move = getNextMove(state);
+
+  const pathIndex = move === MOVES.CIRCLE ? 1 : 0;
+
+  const progress = useMotionValue(0);
+
+  const animation = animate(progress, pathIndex, {
+    duration: 0.15,
+  });
+
+  const path = useTransform(progress, [0, 1], [crossPath, circlePath], {
+    mixer: (from, to) => interpolate(from, to, { maxSegmentLength: 0.5 }),
+  });
+
+  const fill = useTransform(
+    progress,
+    [0, 1],
+    [COLORS_HEX[MOVES.CROSS], COLORS_HEX[MOVES.CIRCLE]]
+  );
+
+  useEffect(() => {
+    return () => {
+      animation.stop();
+    };
+  }, [animation]);
+
   return (
     <motion.section
       initial={{ opacity: 0, y: 48 }}
@@ -362,9 +389,14 @@ const TurnIndicator: React.FC<TurnIndicatorProps> = ({ state }) => {
         className="flex items-center"
       >
         &nbsp;&minus;&nbsp;
-        <span className={getMoveColor(move)}>
-          {move === MOVES.CIRCLE ? <Circle /> : <Cross />}
-        </span>
+        <svg width="24" height="24">
+          <motion.path
+            d={path}
+            fill={fill}
+            fillRule="evenodd"
+            clipRule="evenodd"
+          />
+        </svg>
       </motion.span>
     </motion.section>
   );

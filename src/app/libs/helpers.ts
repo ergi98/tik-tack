@@ -1,4 +1,4 @@
-import { CELL_COUNT, MOVES } from "./constants";
+import { CELL_COUNT, MOVES, COLORS } from "./constants";
 import type { CheckWinnerProps, GameState, Move } from "./types";
 
 const checkRow = ({
@@ -103,11 +103,6 @@ const getNextMove = (currState: GameState) => {
   return lastMove === MOVES.CROSS ? MOVES.CIRCLE : MOVES.CROSS;
 };
 
-const getMoveColor = (move?: Move) =>
-  move === MOVES.CIRCLE ? "text-neutral-300" : "text-neutral-500";
+const getMoveColor = (move?: Move) => COLORS[move ?? MOVES.CROSS];
 
 export { checkForWinner, getNextMove, getMoveColor };
-
-// y = -x + 2 for 3x3
-// y = -x + 3 for 4x4
-// y = -x + 4 for 5x5
