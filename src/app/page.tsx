@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 
 import {
@@ -18,6 +18,7 @@ import type {
   LineProps,
   MoveProps,
   GameScoreProps,
+  TurnIndicatorProps,
 } from "./libs/types";
 import {
   BOARD,
@@ -26,20 +27,17 @@ import {
   CELL_COUNT,
   DEFAULT_SCORE_STATE,
 } from "./libs/constants";
-import { checkForWinner } from "./libs/helpers";
+import { checkForWinner, getNextMove, getMoveColor } from "./libs/helpers";
 
 const Main = () => {
   const [isDisabled, setIsDisabled] = useState(true);
+
+  const mainRef = useRef<HTMLDivElement>(null);
 
   const [gameState, setGameState] = useState<GameState>(new Map());
 
   const [score, setScore] = useState(DEFAULT_SCORE_STATE);
   const [scope, animate] = useAnimate();
-
-  const getNextMove = (currState: GameState) => {
-    const lastMove = Array.from(currState.values()).at(-1);
-    return lastMove === MOVES.CROSS ? MOVES.CIRCLE : MOVES.CROSS;
-  };
 
   const animateWinningCells = (cells: string[]) => {
     setIsDisabled(true);
@@ -102,6 +100,7 @@ const Main = () => {
         return new Map(prev);
       });
     });
+
     const noMoreMoves = gameState.size === Math.pow(CELL_COUNT, 2);
 
     const { winner, cells } = checkForWinner({
@@ -122,29 +121,53 @@ const Main = () => {
   const handleLineAnimationComplete = (order: number) =>
     order === CELL_COUNT - 2 && setIsDisabled(false);
 
+  useEffect(() => {
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  const handleResize = () => {
+    if (!mainRef.current) return;
+    const height = window.innerHeight;
+    mainRef.current.style.height = `${height}px`;
+  };
+
   return (
     <main
-      ref={scope}
-      className="flex items-center justify-center w-full h-screen"
+      ref={mainRef}
+      className="w-full"
+      style={{ height: window.innerHeight }}
     >
-      <div className="h-fit">
-        {BOARD.map((row, i) => (
-          <div key={i} className="flex relative">
-            {row.map((cell, j) => (
-              <Cell
-                row={i}
-                col={j}
-                key={cell}
-                isDisabled={isDisabled}
-                onClick={handleCellClick}
-                move={gameState.get(`${i}${j}`)}
-                onLineAnimationComplete={handleLineAnimationComplete}
-              />
-            ))}
-          </div>
-        ))}
-      </div>
-      <GameScore score={score} />
+      <section
+        ref={scope}
+        className="h-full flex flex-col items-center justify-between py-12"
+      >
+        {/* score */}
+        <GameScore score={score} />
+        {/* Board */}
+        <div className="h-fit">
+          {BOARD.map((row, i) => (
+            <div key={i} className="flex relative">
+              {row.map((cell, j) => (
+                <Cell
+                  row={i}
+                  col={j}
+                  key={cell}
+                  isDisabled={isDisabled}
+                  onClick={handleCellClick}
+                  move={gameState.get(`${i}${j}`)}
+                  onLineAnimationComplete={handleLineAnimationComplete}
+                />
+              ))}
+            </div>
+          ))}
+        </div>
+        {/* Move Indicator */}
+        <TurnIndicator state={gameState} />
+      </section>
     </main>
   );
 };
@@ -216,9 +239,9 @@ const Cell: React.FC<CellProps> = ({
     <button
       onClick={handleClick}
       disabled={isDisabled}
-      className={`${
-        move === MOVES.CIRCLE ? "text-neutral-300" : "text-neutral-500"
-      } cell-${row}${col} h-20 w-20 hover:bg-neutral-900/20 bg-neutral-950 flex items-center justify-center transition-colors rounded-lg cursor-pointer m-2 relative`}
+      className={`${getMoveColor(
+        move
+      )} cell-${row}${col} h-20 w-20 hover:bg-neutral-900/20 bg-neutral-950 flex items-center justify-center transition-colors rounded-lg cursor-pointer m-2 relative`}
     >
       {showVerticalLine && (
         <div className="absolute -right-2 -top-2">
@@ -286,9 +309,13 @@ const GameScore: React.FC<GameScoreProps> = ({ score }) => {
       initial={{ opacity: 0, y: -48 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.3 }}
-      className="flex gap-4 pointer-events-none select-none absolute top-4 right-4 game-score"
+      className="flex items-center p-4 gap-4 pointer-events-none select-none game-score"
     >
-      <div className="cross-score-wrapper flex gap-2 items-center text-neutral-500">
+      <div
+        className={`cross-score-wrapper flex gap-2 items-center ${getMoveColor(
+          MOVES.CROSS
+        )}`}
+      >
         <motion.h3
           initial={{ opacity: 0, x: 24 }}
           animate={{ opacity: 1, x: 0 }}
@@ -299,7 +326,11 @@ const GameScore: React.FC<GameScoreProps> = ({ score }) => {
         </motion.h3>
         <Cross />
       </div>
-      <div className="circle-score-wrapper flex gap-2 items-center text-neutral-300">
+      <div
+        className={`circle-score-wrapper flex gap-2 items-center ${getMoveColor(
+          MOVES.CIRCLE
+        )}`}
+      >
         <motion.h3
           initial={{ opacity: 0, x: 24 }}
           animate={{ opacity: 1, x: 0 }}
@@ -311,5 +342,30 @@ const GameScore: React.FC<GameScoreProps> = ({ score }) => {
         <Circle />
       </div>
     </motion.div>
+  );
+};
+
+const TurnIndicator: React.FC<TurnIndicatorProps> = ({ state }) => {
+  const move = getNextMove(state);
+  return (
+    <motion.section
+      initial={{ opacity: 0, y: 48 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.3 }}
+      className="uppercase text-neutral-500 flex items-center text-lg"
+    >
+      To Play
+      <motion.span
+        initial={{ opacity: 0, x: -48 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.6 }}
+        className="flex items-center"
+      >
+        &nbsp;&minus;&nbsp;
+        <span className={getMoveColor(move)}>
+          {move === MOVES.CIRCLE ? <Circle /> : <Cross />}
+        </span>
+      </motion.span>
+    </motion.section>
   );
 };

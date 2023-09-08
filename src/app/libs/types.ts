@@ -48,6 +48,10 @@ type CheckWinnerProps = {
   state: GameState;
 };
 
+type TurnIndicatorProps = {
+  state: GameState;
+};
+
 export type {
   Move,
   Outcome,
@@ -58,5 +62,6 @@ export type {
   ScoreState,
   GameScoreProps,
   CheckWinnerProps,
+  TurnIndicatorProps,
   AnnouncerStateProps,
 };
