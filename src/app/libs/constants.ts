@@ -1,12 +1,21 @@
-const BOARD = Object.freeze([
-  [0, 1, 2],
-  [3, 4, 5],
-  [6, 7, 8],
-]);
+const GET_BOARD = (count: number) => {
+  const temp: number[][] = [];
+
+  for (let i = 0; i < count; i++) {
+    temp[i] = [];
+    for (let j = count * i; j < count * (i + 1); j++) {
+      temp[i].push(j);
+    }
+  }
+
+  return temp;
+};
+
+const CELL_COUNT = 3;
 
 const CELL_SIZE = 96;
 
-const CELL_COUNT = BOARD.length;
+const BOARD = Object.freeze(GET_BOARD(CELL_COUNT));
 
 const MOVES = Object.freeze({
   CIRCLE: "CIRCLE",
