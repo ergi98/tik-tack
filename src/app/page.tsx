@@ -64,7 +64,7 @@ const Main = () => {
           return [
             `button.cell-${cell}`,
             {
-              backgroundColor: "#0a0a0a",
+              backgroundColor: "#000000",
             },
             { at: "<", duration: 0.3, delay: 0.45 },
           ];
@@ -243,7 +243,7 @@ const Cell: React.FC<CellProps> = ({
       disabled={isDisabled}
       className={`${getMoveColor(
         move
-      )} cell-${row}${col} h-20 w-20 hover:bg-neutral-900/20 bg-neutral-950 flex items-center justify-center transition-colors rounded-lg cursor-pointer m-2 relative`}
+      )} cell-${row}${col} h-20 w-20 hover:bg-neutral-900/20 bg-black flex items-center justify-center transition-colors rounded-lg cursor-pointer m-2 relative`}
     >
       {showVerticalLine && (
         <div className="absolute -right-2 -top-2">
