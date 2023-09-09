@@ -128,28 +128,16 @@ const Main = () => {
   const handleLineAnimationComplete = (order: number) =>
     order === CELL_COUNT - 2 && setIsDisabled(false);
 
-  useEffect(() => {
-    window.addEventListener("resize", handleResize);
-
-    if (mainRef.current)
-      mainRef.current.style.height = `${window?.innerHeight}px`;
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
-
-  const handleResize = () => {
-    if (!mainRef.current) return;
-    const height = window.innerHeight;
-    mainRef.current.style.height = `${height}px`;
-  };
-
   return (
-    <main ref={mainRef} className="w-full">
-      <section ref={scope} className="h-full flex flex-col items-center p-4">
+    <main className="w-full h-full">
+      <section
+        ref={scope}
+        className="h-full flex flex-col items-center p-4 landscape:flex-row landscape:justify-between"
+      >
         {/* score */}
-        <GameScore score={score} />
+        <div className="landscape:mb-auto">
+          <GameScore score={score} />
+        </div>
         {/* Board */}
         <div className="h-fit my-auto">
           {BOARD.map((row, i) => (
@@ -169,7 +157,9 @@ const Main = () => {
           ))}
         </div>
         {/* Move Indicator */}
-        <TurnIndicator state={gameState} />
+        <div className="landscape:mt-auto">
+          <TurnIndicator state={gameState} />
+        </div>
       </section>
     </main>
   );

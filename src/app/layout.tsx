@@ -98,8 +98,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className={`${inter.className} bg-black`}>{children}</body>
+    <html lang="en" className="h-full">
+      <body
+        className={`${inter.className} bg-black h-full`}
+        style={{
+          padding:
+            "env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)",
+        }}
+      >
+        {children}
+      </body>
     </html>
   );
 }
