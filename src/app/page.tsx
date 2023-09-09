@@ -147,14 +147,11 @@ const Main = () => {
 
   return (
     <main ref={mainRef} className="w-full">
-      <section
-        ref={scope}
-        className="h-full flex flex-col items-center justify-between py-12"
-      >
+      <section ref={scope} className="h-full flex flex-col items-center p-4">
         {/* score */}
         <GameScore score={score} />
         {/* Board */}
-        <div className="h-fit">
+        <div className="h-fit my-auto">
           {BOARD.map((row, i) => (
             <div key={i} className="flex relative">
               {row.map((cell, j) => (
