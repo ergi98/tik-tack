@@ -16,31 +16,30 @@ export const metadata: Metadata = {
   themeColor: "#000000",
   colorScheme: "dark",
   creator: "Ergi Dervishaj",
-  // icons: [
-  //   { rel: "icon", url: Favicon16.src },
-  //   {
-  //     rel: "icon",
-  //     sizes: "16x16",
-  //     type: "image/png",
-  //     url: Favicon16.src,
-  //   },
-  //   {
-  //     rel: "icon",
-  //     sizes: "32x32",
-  //     type: "image/png",
-  //     url: Favicon32.src,
-  //   },
-  //   {
-  //     sizes: "57x57",
-  //     url: Apple57.src,
-  //     rel: "apple-touch-icon",
-  //   },
-  //   {
-  //     sizes: "180x180",
-  //     url: Apple180.src,
-  //     rel: "apple-touch-icon",
-  //   },
-  // ],
+  icons: [
+    {
+      rel: "icon",
+      sizes: "16x16",
+      type: "image/png",
+      url: "/favicon_16.ico",
+    },
+    {
+      rel: "icon",
+      sizes: "32x32",
+      type: "image/png",
+      url: "/favicon_32.ico",
+    },
+    {
+      sizes: "57x57",
+      rel: "apple-touch-icon",
+      url: "/apple_icon_57.png",
+    },
+    {
+      sizes: "180x180",
+      rel: "apple-touch-icon",
+      url: "/apple_icon_180.png",
+    },
+  ],
   appleWebApp: {
     capable: true,
     title: "X / O",

@@ -14,17 +14,17 @@ export default function manifest(): MetadataRoute.Manifest {
       {
         sizes: "512x512",
         type: "image/svg+xml",
-        src: "manifest/manifest_512.svg",
+        src: "/public/manifest_512.svg",
       },
       {
         sizes: "192x192",
         type: "image/png",
-        src: "manifest/manifest_192.png",
+        src: "/public/manifest_192.png",
       },
       {
         sizes: "512x512",
         type: "image/png",
-        src: "manifest/manifest_512.png",
+        src: "/public/manifest_512.png",
       },
     ],
     lang: "en",

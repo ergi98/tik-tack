@@ -30,8 +30,8 @@ import {
   MOVES,
   CELL_SIZE,
   CELL_COUNT,
-  DEFAULT_SCORE_STATE,
   COLORS_HEX,
+  DEFAULT_SCORE_STATE,
 } from "./libs/constants";
 import { checkForWinner, getNextMove, getMoveColor } from "./libs/helpers";
 import { circlePath, crossPath } from "./libs/paths";
