@@ -11,6 +11,8 @@ export const metadata: Metadata = {
     name: "Ergi Dervishaj",
     url: "https://www.linkedin.com/in/ergi-dervishaj/",
   },
+  viewport:
+    "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no",
   description: "Play Tic-Tac-Toe online with friends",
   keywords: ["Tic-Tac-Toe", "Multiplayer Game"],
   themeColor: "#000000",
