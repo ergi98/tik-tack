@@ -27,6 +27,12 @@ const OUTCOMES = Object.freeze({
   DRAW: "DRAW",
 });
 
+const OPPONENTS = Object.freeze({
+  PVP: "PVP",
+  PVC: "PVC",
+  // ONLINE: "ONLINE",
+});
+
 const DEFAULT_SCORE_STATE = Object.freeze({
   [MOVES.CIRCLE]: 0,
   [MOVES.CROSS]: 0,
@@ -47,6 +53,7 @@ export {
   MOVES,
   COLORS,
   OUTCOMES,
+  OPPONENTS,
   CELL_SIZE,
   CELL_COUNT,
   COLORS_HEX,

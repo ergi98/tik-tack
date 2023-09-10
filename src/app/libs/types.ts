@@ -1,5 +1,4 @@
-import { MOVES, OUTCOMES } from "./constants";
-import type { AnimationDefinition } from "framer-motion";
+import { MOVES, OPPONENTS, OUTCOMES } from "./constants";
 
 type Move = keyof typeof MOVES;
 
@@ -23,6 +22,8 @@ type LineProps = {
   size: number | string;
   onAnimationComplete: (order: number) => void;
 };
+
+type Opponent = keyof typeof OPPONENTS;
 
 type MoveProps = {
   input: Move;
@@ -56,6 +57,7 @@ type TurnIndicatorProps = {
 export type {
   Move,
   Outcome,
+  Opponent,
   GameState,
   MoveProps,
   LineProps,
