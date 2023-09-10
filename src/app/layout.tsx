@@ -28,6 +28,7 @@ export const metadata: Metadata = {
     type: "website",
     title: "X / O",
     siteName: "X / O",
+    images: ["/apple_icon_57.png", "/apple_icon_180.png"],
     description: "Play Tic-Tac-Toe online with friends",
   },
   icons: [

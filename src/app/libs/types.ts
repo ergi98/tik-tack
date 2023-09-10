@@ -37,6 +37,7 @@ type CellProps = {
   row: number;
   col: number;
   isDisabled: boolean;
+  onExitComplete: () => void;
   onClick: (a: number, b: number) => void;
   onLineAnimationComplete: (order: number) => void;
 };

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { flushSync } from "react-dom";
 
 import {
@@ -39,8 +39,6 @@ import { circlePath, crossPath } from "./libs/paths";
 const Main = () => {
   const [isDisabled, setIsDisabled] = useState(true);
 
-  const mainRef = useRef<HTMLDivElement>(null);
-
   const [gameState, setGameState] = useState<GameState>(new Map());
 
   const [score, setScore] = useState(DEFAULT_SCORE_STATE);
@@ -70,10 +68,7 @@ const Main = () => {
           ];
         }) as AnimationSequence,
       ].flat(1)
-    ).then(() => {
-      setGameState(new Map());
-      setIsDisabled(false);
-    });
+    ).then(() => setGameState(new Map()));
   };
 
   const animateScoreUpdate = (winner: Move) => {
@@ -125,6 +120,8 @@ const Main = () => {
     }
   };
 
+  const onCellExitComplete = () => isDisabled && setIsDisabled(false);
+
   const handleLineAnimationComplete = (order: number) =>
     order === CELL_COUNT - 2 && setIsDisabled(false);
 
@@ -150,6 +147,7 @@ const Main = () => {
                   isDisabled={isDisabled}
                   onClick={handleCellClick}
                   move={gameState.get(`${i}${j}`)}
+                  onExitComplete={onCellExitComplete}
                   onLineAnimationComplete={handleLineAnimationComplete}
                 />
               ))}
@@ -216,6 +214,7 @@ const Cell: React.FC<CellProps> = ({
   move,
   onClick,
   isDisabled,
+  onExitComplete,
   onLineAnimationComplete,
 }) => {
   const handleClick = () => onClick(row, col);
@@ -251,7 +250,9 @@ const Cell: React.FC<CellProps> = ({
           />
         </div>
       )}
-      <AnimatePresence>{move && <Move input={move!} />}</AnimatePresence>
+      <AnimatePresence onExitComplete={onExitComplete}>
+        {move && <Move input={move!} />}
+      </AnimatePresence>
     </button>
   );
 };
