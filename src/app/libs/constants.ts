@@ -48,10 +48,16 @@ const COLORS_HEX = Object.freeze({
   [MOVES.CROSS]: "#737373",
 });
 
+const MINIMAX = Object.freeze({
+  [MOVES.CIRCLE]: -1,
+  [MOVES.CROSS]: 1,
+});
+
 export {
   BOARD,
   MOVES,
   COLORS,
+  MINIMAX,
   OUTCOMES,
   OPPONENTS,
   CELL_SIZE,

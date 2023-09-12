@@ -20,7 +20,7 @@ type LineProps = {
   order: number;
   vertical?: boolean;
   size: number | string;
-  onAnimationComplete: (order: number) => void;
+  onLineAnimationComplete: (order: number) => void;
 };
 
 type Opponent = keyof typeof OPPONENTS;
@@ -38,7 +38,6 @@ type CellProps = {
   row: number;
   col: number;
   isDisabled: boolean;
-  onExitComplete: () => void;
   onClick: (a: number, b: number) => void;
   onLineAnimationComplete: (order: number) => void;
 };
@@ -54,6 +53,18 @@ type TurnIndicatorProps = {
   state: GameState;
 };
 
+type OpponentSelectorProps = {
+  opponent: Opponent;
+  onChange: (a: Opponent) => void;
+};
+
+type PositionScoreProps = {
+  x: number;
+  y: number;
+  state: GameState;
+  isMaximizing: boolean;
+};
+
 export type {
   Move,
   Outcome,
@@ -65,6 +76,8 @@ export type {
   ScoreState,
   GameScoreProps,
   CheckWinnerProps,
+  PositionScoreProps,
   TurnIndicatorProps,
   AnnouncerStateProps,
+  OpponentSelectorProps,
 };

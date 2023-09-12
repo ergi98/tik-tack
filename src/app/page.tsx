@@ -1,20 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { flushSync } from "react-dom";
 
-import {
-  motion,
-  // animate,
-  useAnimate,
-  usePresence,
-  // useTransform,
-  // useMotionValue,
-  AnimatePresence,
-  AnimationSequence,
-} from "framer-motion";
-
-// import { interpolate } from "flubber";
+import { motion, useAnimate, type AnimationSequence } from "framer-motion";
 
 import type {
   Move,
@@ -22,9 +10,8 @@ import type {
   CellProps,
   GameState,
   LineProps,
-  MoveProps,
   GameScoreProps,
-  // TurnIndicatorProps,
+  OpponentSelectorProps,
 } from "./libs/types";
 import {
   BOARD,
@@ -32,100 +19,165 @@ import {
   OPPONENTS,
   CELL_SIZE,
   CELL_COUNT,
-  // COLORS_HEX,
   DEFAULT_SCORE_STATE,
 } from "./libs/constants";
 import { checkForWinner, getNextMove, getMoveColor } from "./libs/helpers";
 import { circlePath, crossPath } from "./libs/paths";
+import { getBestMoveFromPosition } from "./libs/minimax";
 
 const Main = () => {
   const [isDisabled, setIsDisabled] = useState(true);
 
   const [gameState, setGameState] = useState<GameState>(new Map());
 
+  const [opponent, setOpponent] = useState<Opponent>(OPPONENTS.PVP);
+
   const [score, setScore] = useState(DEFAULT_SCORE_STATE);
   const [scope, animate] = useAnimate();
 
-  const animateWinningCells = (cells: string[]) => {
-    setIsDisabled(true);
-    animate(
-      [
-        cells.map((cell) => {
-          return [
-            `button.cell-${cell}`,
-            { backgroundColor: "#404040" },
-            {
-              at: "<",
-              duration: 0.3,
-            },
-          ];
-        }) as AnimationSequence,
-        cells.map((cell) => {
-          return [
-            `button.cell-${cell}`,
-            {
-              backgroundColor: "#000000",
-            },
-            { at: "<", duration: 0.3, delay: 0.45 },
-          ];
-        }) as AnimationSequence,
-      ].flat(1)
-    ).then(() => setGameState(new Map()));
+  const animateWinningCells = async (cells: string[]) => {
+    await animate(
+      cells.map((cell) => {
+        return [
+          `button.cell-${cell}`,
+          { backgroundColor: "#404040" },
+          { at: "<", duration: 0.25 },
+        ];
+      }) as AnimationSequence
+    );
+    await animate(
+      cells.map((cell) => {
+        return [
+          `button.cell-${cell}`,
+          {
+            backgroundColor: "#000000",
+          },
+          { at: "<", duration: 0.25, delay: 0.2 },
+        ];
+      }) as AnimationSequence
+    );
   };
 
-  const animateScoreUpdate = (winner: Move) => {
+  const animateScoreUpdate = async (winner: Move) => {
     const selector = `${winner === MOVES.CIRCLE ? "circle" : "cross"}-score`;
-    animate(`h3.${selector}`, {
-      y: 12,
-      opacity: 0,
-    }).then(() => {
-      flushSync(() => {
-        setScore((prev) => {
-          return {
-            ...prev,
-            [winner]: prev[winner] + 1,
-          };
-        });
-      });
-      animate([
-        [`h3.${selector}`, { y: 0, opacity: 1 }],
-        [`div.${selector}-wrapper`, { scale: 1.1 }],
-        [`div.${selector}-wrapper`, { scale: 1 }],
-      ]);
+
+    await animate(
+      `h3.${selector}`,
+      {
+        y: 12,
+        opacity: 0,
+      },
+      { duration: 0.15 }
+    );
+
+    setScore((prev) => {
+      return {
+        ...prev,
+        [winner]: prev[winner] + 1,
+      };
     });
+
+    await animate([
+      [`h3.${selector}`, { y: 0, opacity: 1 }, { duration: 0.25 }],
+      [`div.${selector}-wrapper`, { scale: 1.1 }, { duration: 0.25 }],
+      [`div.${selector}-wrapper`, { scale: 1 }, { duration: 0.25 }],
+    ]);
   };
 
-  const handleCellClick = (x: number, y: number) => {
-    const mapKey = `${x}${y}`;
-    const nextMove = getNextMove(gameState);
-    flushSync(() => {
-      setGameState((prev) => {
-        if (!prev.get(mapKey)) prev.set(mapKey, nextMove);
-        return new Map(prev);
-      });
-    });
+  const animateMoveEntrance = async (key: string, move: Move) => {
+    setGameState(new Map(gameState.set(key, move)));
+    await animate(
+      `div.move-${key}`,
+      { scale: 1.1, opacity: 1 },
+      { duration: 0.15 }
+    );
+  };
 
-    const noMoreMoves = gameState.size === Math.pow(CELL_COUNT, 2);
+  const handleCellClick = async (x: number, y: number) => {
+    setIsDisabled(true);
+
+    const key = `${x}${y}`;
+
+    if (gameState.get(key)) return;
+
+    const move = getNextMove(gameState);
+
+    await animateMoveEntrance(key, move);
 
     const { winner, cells } = checkForWinner({
       x: x,
       y: y,
-      move: nextMove,
+      move: move,
       state: gameState,
     });
 
     if (winner) {
-      animateScoreUpdate(winner);
-      animateWinningCells(cells);
-    } else if (noMoreMoves) {
-      setGameState(new Map());
+      await Promise.all([
+        animateScoreUpdate(winner),
+        animateWinningCells(cells),
+      ]);
+      await resetGameState();
+      return;
     }
+
+    const noMoreMoves = gameState.size === Math.pow(CELL_COUNT, 2);
+
+    if (noMoreMoves) {
+      await resetGameState();
+      return;
+    }
+
+    // If playing with a computer and the last move played is a cross
+    // Then its the computer's move
+    if (opponent === OPPONENTS.PVC && move === MOVES.CROSS) {
+      playComputerMove();
+      return;
+    }
+
+    setIsDisabled(false);
   };
 
-  const onCellExitComplete = () => isDisabled && setIsDisabled(false);
+  const handleOpponentChange = (value: Opponent) => {
+    if (opponent === value) return;
+    setOpponent(value);
+    resetGameState();
+  };
+
+  const playComputerMove = () => {
+    const { x, y } = getBestMoveFromPosition(gameState);
+    handleCellClick(x, y);
+  };
+
+  const resetGameState = async () => {
+    setIsDisabled(true);
+    await animate(
+      "div.move",
+      {
+        opacity: 1,
+        scale: 1.75,
+      },
+      {
+        duration: 0.35,
+      }
+    );
+
+    await animate(
+      "div.move",
+      {
+        opacity: 0,
+        scale: 0,
+      },
+      {
+        duration: 0.35,
+      }
+    );
+
+    setGameState(new Map());
+    setIsDisabled(false);
+  };
 
   const handleLineAnimationComplete = (order: number) =>
-    order === CELL_COUNT - 2 && setIsDisabled(false);
+    order === CELL_COUNT - 1 && setIsDisabled(false);
 
   return (
     <main className="w-full h-full">
@@ -149,7 +201,6 @@ const Main = () => {
                   isDisabled={isDisabled}
                   onClick={handleCellClick}
                   move={gameState.get(`${i}${j}`)}
-                  onExitComplete={onCellExitComplete}
                   onLineAnimationComplete={handleLineAnimationComplete}
                 />
               ))}
@@ -159,7 +210,7 @@ const Main = () => {
         {/* Move Indicator */}
         {/* <TurnIndicator state={gameState} /> */}
         {/* VersusSelector */}
-        <OpponentSelector />
+        <OpponentSelector opponent={opponent} onChange={handleOpponentChange} />
       </section>
     </main>
   );
@@ -171,7 +222,7 @@ const Line: React.FC<LineProps> = ({
   size,
   order,
   vertical,
-  onAnimationComplete,
+  onLineAnimationComplete,
 }) => {
   return (
     <motion.svg
@@ -180,10 +231,10 @@ const Line: React.FC<LineProps> = ({
       style={{ strokeWidth: "4px" }}
       className="stroke-neutral-600"
       // Animations
-      initial={{ strokeDasharray: 500, strokeDashoffset: 500 }}
       animate={{ strokeDashoffset: 0 }}
       transition={{ duration: 0.5, delay: order * 0.3 }}
-      onAnimationComplete={() => onAnimationComplete(order)}
+      initial={{ strokeDasharray: 500, strokeDashoffset: 500 }}
+      onAnimationComplete={() => onLineAnimationComplete(order)}
     >
       {vertical ? (
         <line x1="0" y1="0" x2="0" y2="100%" />
@@ -216,7 +267,6 @@ const Cell: React.FC<CellProps> = ({
   move,
   onClick,
   isDisabled,
-  onExitComplete,
   onLineAnimationComplete,
 }) => {
   const handleClick = () => onClick(row, col);
@@ -227,77 +277,47 @@ const Cell: React.FC<CellProps> = ({
 
   return (
     <button
+      type="button"
       onClick={handleClick}
       disabled={isDisabled}
-      className={`${getMoveColor(
-        move
-      )} cell-${row}${col} h-20 w-20 bg-black flex items-center justify-center transition-colors duration-300 rounded-lg cursor-pointer m-2 relative hover:bg-neutral-900/30 focus:bg-neutral-900/30 focus:outline-none active:bg-neutral-900/50`}
+      className={`${getMoveColor(move)} 
+        cell-${row}${col} h-20 w-20 bg-black flex items-center justify-center 
+        transition-colors duration-300 rounded-lg cursor-pointer m-2 relative 
+        hover:bg-neutral-900/30 focus:bg-neutral-900/30 
+        focus:outline-none active:bg-neutral-900/50
+      `}
     >
       {showVerticalLine && (
         <div className="absolute -right-2 -top-2">
+          {/*  order={col + row} */}
           <Line
             vertical
             order={col + row}
             size={CELL_COUNT * CELL_SIZE}
-            onAnimationComplete={onLineAnimationComplete}
+            onLineAnimationComplete={onLineAnimationComplete}
           />
         </div>
       )}
       {showHorizontalLine && (
         <div className="absolute -bottom-2 -left-2">
           <Line
-            order={col + row}
+            order={col + row + 1}
             size={CELL_COUNT * CELL_SIZE}
-            onAnimationComplete={onLineAnimationComplete}
+            onLineAnimationComplete={onLineAnimationComplete}
           />
         </div>
       )}
-      <AnimatePresence onExitComplete={onExitComplete}>
-        {move && <Move input={move!} />}
-      </AnimatePresence>
+      <div className={`opacity-0 scale-0 move-${row}${col} move`}>
+        {move ? move === MOVES.CIRCLE ? <Circle /> : <Cross /> : null}
+      </div>
     </button>
-  );
-};
-
-const Move: React.FC<MoveProps> = ({ input }) => {
-  const [scope, animate] = useAnimate();
-  const [isPresent, safeToRemove] = usePresence();
-
-  useEffect(() => {
-    if (isPresent) {
-      const enterAnimation = async () => {
-        await animate(scope.current, { opacity: 1, scale: 1.1 });
-      };
-      enterAnimation();
-    } else {
-      const exitAnimation = async () => {
-        await animate(
-          scope.current,
-          { opacity: 1, scale: 1.75 },
-          { duration: 0.35 }
-        );
-        await animate(
-          scope.current,
-          { opacity: 0, scale: 0 },
-          { duration: 0.35 }
-        );
-        safeToRemove();
-      };
-      exitAnimation();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPresent]);
-
-  return (
-    <div ref={scope} className="scale-0 opacity-0">
-      {input === MOVES.CIRCLE ? <Circle /> : <Cross />}
-    </div>
   );
 };
 
 const GameScore: React.FC<GameScoreProps> = ({ score }) => {
   return (
     <motion.div
+      layout
       initial={{ opacity: 0, y: -48 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.3 }}
@@ -309,9 +329,9 @@ const GameScore: React.FC<GameScoreProps> = ({ score }) => {
         )}`}
       >
         <motion.h3
+          transition={{ delay: 0.6 }}
           initial={{ opacity: 0, x: 24 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.6 }}
           className="score cross-score font-bold relative"
         >
           {score[MOVES.CROSS]}
@@ -324,9 +344,9 @@ const GameScore: React.FC<GameScoreProps> = ({ score }) => {
         )}`}
       >
         <motion.h3
+          transition={{ delay: 0.6 }}
           initial={{ opacity: 0, x: 24 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.6 }}
           className="score circle-score font-bold relative"
         >
           {score[MOVES.CIRCLE]}
@@ -365,22 +385,22 @@ const Group: React.FC = () => {
     <svg width="24" height="24" fill="none" stroke="currentColor">
       <path
         d="M13.5056 12.8792C16.4066 12.299 21 12.2474 21 18.6296C21 20.3702 18.6792 19.79 15.198 19.79"
-        stroke-width="1.5"
+        strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
       <path
         d="M13.4839 19.8829H3.02165C2.84728 17.5483 3.64939 12.8792 8.25278 12.8792C12.8562 12.8792 13.6583 17.5483 13.4839 19.8829Z"
-        stroke-width="1.5"
+        strokeWidth="1.5"
         strokeLinejoin="round"
       />
       <path
         d="M10.5669 8.06412C10.5669 9.34217 9.53083 10.3782 8.25278 10.3782C6.97473 10.3782 5.93866 9.34217 5.93866 8.06412C5.93866 6.78607 6.97473 5.75 8.25278 5.75C9.53083 5.75 10.5669 6.78607 10.5669 8.06412Z"
-        stroke-width="1.5"
+        strokeWidth="1.5"
       />
       <path
         d="M17.6752 8.06412C17.6752 9.34217 16.6391 10.3782 15.3611 10.3782C14.083 10.3782 13.0469 9.34217 13.0469 8.06412C13.0469 6.78607 14.083 5.75 15.3611 5.75C16.6391 5.75 17.6752 6.78607 17.6752 8.06412Z"
-        stroke-width="1.5"
+        strokeWidth="1.5"
       />
     </svg>
   );
@@ -398,9 +418,10 @@ const Group: React.FC = () => {
 //   );
 // };
 
-const OpponentSelector: React.FC = () => {
-  const [opponent, setOpponent] = useState<Opponent>(OPPONENTS.PVP);
-
+const OpponentSelector: React.FC<OpponentSelectorProps> = ({
+  opponent,
+  onChange,
+}) => {
   const getIcon = (key: string) => {
     if (key === OPPONENTS.PVC) return <Bot />;
     if (key === OPPONENTS.PVP) return <Group />;
@@ -423,8 +444,6 @@ const OpponentSelector: React.FC = () => {
     show: { opacity: 1, scale: 1, transition: { easing: "easeIn" } },
   };
 
-  const handleOpponentChange = (key: Opponent) => setOpponent(key);
-
   return (
     <motion.div
       animate="show"
@@ -440,14 +459,14 @@ const OpponentSelector: React.FC = () => {
             type="radio"
             name="opponent"
             className="hidden peer"
-            checked={opponent === key}
+            defaultChecked={opponent === key}
           />
           <label
             htmlFor={key}
-            onClick={() => handleOpponentChange(key as Opponent)}
+            onClick={() => onChange(key as Opponent)}
             className={`
               transition-colors duration-300
-              py-2 px-4 block cursor-pointer bg-neutral-900 text-neutral-500 
+              py-4 px-6 block cursor-pointer bg-neutral-900 text-neutral-500 
               hover:bg-neutral-800 hover:text-neutral-400 
               active:bg-neutral-700 active:text-neutral-300 
               peer-checked:text-neutral-50 peer-checked:bg-neutral-500 
