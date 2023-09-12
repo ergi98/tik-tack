@@ -98,7 +98,10 @@ const Main = () => {
 
     const key = `${x}${y}`;
 
-    if (gameState.get(key)) return;
+    if (gameState.get(key)) {
+      setIsDisabled(false);
+      return;
+    }
 
     const move = getNextMove(gameState);
 

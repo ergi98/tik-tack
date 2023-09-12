@@ -53,12 +53,8 @@ const getPositionScore = (props: PositionScoreProps): number => {
   });
   const noMoreMoves = state.size === Math.pow(CELL_COUNT, 2);
 
-  if (winner) {
-    return MINIMAX[winner];
-  }
-  if (noMoreMoves) {
-    return 0;
-  }
+  if (winner) return MINIMAX[winner];
+  if (noMoreMoves) return 0;
 
   let bestScore = isMaximizing ? -Infinity : Infinity;
 
