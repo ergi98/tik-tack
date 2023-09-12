@@ -1,4 +1,4 @@
-import { MOVES, OPPONENTS, OUTCOMES } from "./constants";
+import { DEFAULT_SCORE_STATE, MOVES, OPPONENTS, OUTCOMES } from "./constants";
 
 type Move = keyof typeof MOVES;
 
@@ -65,10 +65,13 @@ type PositionScoreProps = {
   isMaximizing: boolean;
 };
 
+type ScoreKey = keyof typeof DEFAULT_SCORE_STATE;
+
 export type {
   Move,
   Outcome,
   Opponent,
+  ScoreKey,
   GameState,
   MoveProps,
   LineProps,
