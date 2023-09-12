@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { motion, useAnimate, type AnimationSequence } from "framer-motion";
 
@@ -186,7 +186,7 @@ const Main = () => {
     <main className="w-full h-full">
       <section
         ref={scope}
-        className="h-full flex flex-col items-center p-4 landscape:flex-row landscape:justify-between relative"
+        className="p-4  h-full relative flex flex-col items-center landscape:flex-row landscape:justify-center"
       >
         {/* Menu */}
         {/* <GameMenu /> */}
@@ -317,6 +317,8 @@ const Cell: React.FC<CellProps> = ({
   );
 };
 
+const formatter = new Intl.NumberFormat("en-US");
+
 const GameScore: React.FC<GameScoreProps> = ({ score }) => {
   return (
     <motion.div
@@ -324,7 +326,7 @@ const GameScore: React.FC<GameScoreProps> = ({ score }) => {
       initial={{ opacity: 0, y: -48 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.3 }}
-      className="flex items-center gap-4 pointer-events-none select-none game-score landscape:mb-auto"
+      className="flex items-center gap-4 pointer-events-none select-none game-score landscape:absolute landscape:top-4 landscape:left-4"
     >
       <div
         className={`cross-score-wrapper flex gap-2 items-center ${getMoveColor(
@@ -337,7 +339,7 @@ const GameScore: React.FC<GameScoreProps> = ({ score }) => {
           animate={{ opacity: 1, x: 0 }}
           className="score cross-score font-bold relative"
         >
-          {score[MOVES.CROSS]}
+          {formatter.format(score[MOVES.CROSS])}
         </motion.h3>
         <Cross />
       </div>
@@ -352,7 +354,7 @@ const GameScore: React.FC<GameScoreProps> = ({ score }) => {
           animate={{ opacity: 1, x: 0 }}
           className="score circle-score font-bold relative"
         >
-          {score[MOVES.CIRCLE]}
+          {formatter.format(score[MOVES.CIRCLE])}
         </motion.h3>
         <Circle />
       </div>
@@ -452,7 +454,7 @@ const OpponentSelector: React.FC<OpponentSelectorProps> = ({
       animate="show"
       initial="hidden"
       variants={selectorVariants}
-      className="flex overflow-hidden rounded-md bg-neutral-900 landscape:mt-auto relative"
+      className="flex overflow-hidden rounded-md bg-neutral-900 relative landscape:absolute landscape:bottom-4 landscape:right-4"
     >
       <motion.div
         layout
