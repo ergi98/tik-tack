@@ -30,7 +30,7 @@ const OUTCOMES = Object.freeze({
 const OPPONENTS = Object.freeze({
   PVP: "PVP",
   PVC: "PVC",
-  // ONLINE: "ONLINE",
+  ONLINE: "ONLINE",
 });
 
 const DEFAULT_SCORE_STATE = Object.freeze({
