@@ -449,30 +449,29 @@ const OpponentSelector: React.FC<OpponentSelectorProps> = ({
       animate="show"
       initial="hidden"
       variants={selectorVariants}
-      className="flex overflow-hidden rounded-md bg-neutral-900 landscape:mt-auto"
+      className="flex overflow-hidden rounded-md bg-neutral-900 landscape:mt-auto relative"
     >
+      <motion.div
+        layout
+        className={`opponent-slider absolute w-1/2 h-full top-0 bg-neutral-600 ${
+          opponent === OPPONENTS.PVP ? "left-0" : "right-0"
+        }`}
+      />
       {Object.keys(OPPONENTS).map((key) => (
-        <motion.div key={key} variants={buttonVariants}>
+        <motion.div key={key} variants={buttonVariants} className="z-10">
           <input
             id={key}
             value={key}
             type="radio"
             name="opponent"
             className="hidden peer"
-            defaultChecked={opponent === key}
+            checked={opponent === key}
+            onChange={() => onChange(key as Opponent)}
           />
           <label
             htmlFor={key}
             onClick={() => onChange(key as Opponent)}
-            className={`
-              transition-colors duration-300
-              py-4 px-6 block cursor-pointer bg-neutral-900 text-neutral-500 
-              hover:bg-neutral-800 hover:text-neutral-400 
-              active:bg-neutral-700 active:text-neutral-300 
-              peer-checked:text-neutral-50 peer-checked:bg-neutral-500 
-              peer-checked:hover:text-neutral-200 peer-checked:hover:bg-neutral-600
-              peer-checked:active:bg-neutral-700 peer-checked:active:text-neutral-300 
-            `}
+            className="z-10 py-4 px-6 block cursor-pointer text-neutral-500 transition-colors duration-300 peer-checked:text-neutral-50"
           >
             {getIcon(key)}
           </label>
