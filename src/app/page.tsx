@@ -7,6 +7,7 @@ import { motion, useAnimate, type AnimationSequence } from "framer-motion";
 import type {
   Move,
   Opponent,
+  ScoreKey,
   CellProps,
   GameState,
   LineProps,
@@ -144,6 +145,7 @@ const Main = () => {
     if (opponent === value) return;
     setOpponent(value);
     resetGameState();
+    resetGameScore();
   };
 
   const playComputerMove = () => {
@@ -177,6 +179,39 @@ const Main = () => {
 
     setGameState(new Map());
     setIsDisabled(false);
+  };
+
+  const resetGameScore = async () => {
+    let isDefaultScore = true;
+
+    for (const key of Object.keys(DEFAULT_SCORE_STATE)) {
+      if (score[key as ScoreKey] !== DEFAULT_SCORE_STATE[key as ScoreKey]) {
+        isDefaultScore = false;
+        break;
+      }
+    }
+
+    if (isDefaultScore) return;
+
+    await animate(
+      "h3.score",
+      {
+        opacity: 0,
+        x: 24,
+      },
+      { duration: 0.15 }
+    );
+
+    setScore({ ...DEFAULT_SCORE_STATE });
+
+    await animate(
+      "h3.score",
+      {
+        opacity: 1,
+        x: 0,
+      },
+      { duration: 0.15 }
+    );
   };
 
   const handleLineAnimationComplete = (order: number) =>
