@@ -65,6 +65,11 @@ type PositionScoreProps = {
   isMaximizing: boolean;
 };
 
+type OnlineDialogProps = {
+  isOpen: boolean;
+  onClose: () => void;
+};
+
 type ScoreKey = keyof typeof DEFAULT_SCORE_STATE;
 
 export type {
@@ -79,6 +84,7 @@ export type {
   ScoreState,
   GameScoreProps,
   CheckWinnerProps,
+  OnlineDialogProps,
   PositionScoreProps,
   TurnIndicatorProps,
   AnnouncerStateProps,

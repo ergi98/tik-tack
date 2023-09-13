@@ -26,8 +26,11 @@ import { checkForWinner, getNextMove, getMoveColor } from "./libs/helpers";
 import { circlePath, crossPath } from "./libs/paths";
 import { getBestMoveFromPosition } from "./libs/minimax";
 
+import OnlineDialog from "./components/OnlineDialog";
+
 const Main = () => {
   const [isDisabled, setIsDisabled] = useState(true);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const [gameState, setGameState] = useState<GameState>(new Map());
 
@@ -146,6 +149,10 @@ const Main = () => {
     setOpponent(value);
     resetGameState();
     resetGameScore();
+
+    if (value === OPPONENTS.ONLINE) {
+      setIsDialogOpen(true);
+    }
   };
 
   const playComputerMove = () => {
@@ -217,6 +224,11 @@ const Main = () => {
   const handleLineAnimationComplete = (order: number) =>
     order === CELL_COUNT - 1 && setIsDisabled(false);
 
+  const handleDialogClose = () => {
+    setIsDialogOpen(false);
+    setOpponent(OPPONENTS.PVP);
+  };
+
   return (
     <main className="w-full h-full">
       <section
@@ -250,6 +262,7 @@ const Main = () => {
         {/* VersusSelector */}
         <OpponentSelector opponent={opponent} onChange={handleOpponentChange} />
       </section>
+      <OnlineDialog isOpen={isDialogOpen} onClose={handleDialogClose} />
     </main>
   );
 };
