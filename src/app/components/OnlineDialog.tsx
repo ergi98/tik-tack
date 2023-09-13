@@ -24,10 +24,12 @@ const validationSchema = z.object({
 
 type ValidationSchema = z.infer<typeof validationSchema>;
 
-const OnlineDialog: React.FC<OnlineDialogProps> = ({ isOpen, onClose }) => {
+const OnlineDialog: React.FC<OnlineDialogProps> = ({
+  isOpen,
+  playerId,
+  onClose,
+}) => {
   const [scope, animate] = useAnimate();
-
-  const [gameCode, setGameCode] = useState("123456");
 
   const {
     register,
@@ -37,11 +39,9 @@ const OnlineDialog: React.FC<OnlineDialogProps> = ({ isOpen, onClose }) => {
     resolver: zodResolver(validationSchema),
   });
 
-  console.log(errors);
-
   const handleCodeClick = () => {
     navigator.clipboard
-      .writeText(gameCode)
+      .writeText(playerId)
       .then(() => animateCopiedFeedback("success"))
       .catch((err) => {
         console.error(err);
@@ -147,7 +147,7 @@ const OnlineDialog: React.FC<OnlineDialogProps> = ({ isOpen, onClose }) => {
                   className="w-full flex justify-between border border-neutral-600 rounded-md p-4 text-sm focus:outline-neutral-400 relative overflow-hidden game-code-button"
                 >
                   <div>Your Code</div>
-                  <div className="font-bold tracking-wide">{gameCode}</div>
+                  <div className="font-bold tracking-wide">{playerId}</div>
                   <div className="absolute left-1/2 text-green-400 opacity-0 -translate-x-1/2 translate-y-full copied-success-message">
                     Copied!
                   </div>

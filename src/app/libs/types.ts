@@ -54,6 +54,7 @@ type TurnIndicatorProps = {
 };
 
 type OpponentSelectorProps = {
+  playerId?: string;
   opponent: Opponent;
   onChange: (a: Opponent) => void;
 };
@@ -67,7 +68,12 @@ type PositionScoreProps = {
 
 type OnlineDialogProps = {
   isOpen: boolean;
+  playerId: string;
   onClose: () => void;
+};
+
+type MainScreenProps = {
+  playerId?: string;
 };
 
 type ScoreKey = keyof typeof DEFAULT_SCORE_STATE;
@@ -83,6 +89,7 @@ export type {
   CellProps,
   ScoreState,
   GameScoreProps,
+  MainScreenProps,
   CheckWinnerProps,
   OnlineDialogProps,
   PositionScoreProps,
