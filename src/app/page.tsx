@@ -221,7 +221,7 @@ const Main = () => {
     <main className="w-full h-full">
       <section
         ref={scope}
-        className="p-4  h-full relative flex flex-col items-center landscape:flex-row landscape:justify-center"
+        className="h-full flex flex-col items-center p-4 landscape:flex-row landscape:justify-between relative"
       >
         {/* Menu */}
         {/* <GameMenu /> */}
