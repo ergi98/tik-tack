@@ -101,7 +101,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full">
       <body
-        className={`${inter.className} bg-black h-full`}
+        className={`${inter.className} bg-black h-full select-none`}
         style={{
           padding:
             "env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)",

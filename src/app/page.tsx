@@ -50,9 +50,7 @@ const Main = () => {
       cells.map((cell) => {
         return [
           `button.cell-${cell}`,
-          {
-            backgroundColor: "#000000",
-          },
+          { backgroundColor: "#000000" },
           { at: "<", duration: 0.25, delay: 0.2 },
         ];
       }) as AnimationSequence
@@ -221,7 +219,7 @@ const Main = () => {
     <main className="w-full h-full">
       <section
         ref={scope}
-        className="h-full flex flex-col items-center p-4 landscape:flex-row landscape:justify-between relative"
+        className="h-full flex flex-col items-center p-4 landscape:flex-row landscape:justify-center relative"
       >
         {/* Menu */}
         {/* <GameMenu /> */}
@@ -361,7 +359,7 @@ const GameScore: React.FC<GameScoreProps> = ({ score }) => {
       initial={{ opacity: 0, y: -48 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.3 }}
-      className="flex items-center gap-4 pointer-events-none select-none game-score landscape:absolute landscape:top-4 landscape:left-4"
+      className="flex items-center gap-4 pointer-events-none game-score landscape:absolute landscape:top-4 landscape:left-4"
     >
       <div
         className={`cross-score-wrapper flex gap-2 items-center ${getMoveColor(
@@ -504,8 +502,8 @@ const OpponentSelector: React.FC<OpponentSelectorProps> = ({
             value={key}
             type="radio"
             name="opponent"
-            className="hidden peer"
             checked={opponent === key}
+            className="hidden peer"
             onChange={() => onChange(key as Opponent)}
           />
           <label
