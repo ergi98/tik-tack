@@ -37,44 +37,26 @@ const Main = () => {
   const [scope, animate] = useAnimate();
 
   const animateWinningCells = async (cells: string[]) => {
-    await animate(
-      cells.map((cell) => {
-        return [
-          `button.cell-${cell}`,
-          { backgroundColor: "#404040" },
-          { at: "<", duration: 0.25 },
-        ];
-      }) as AnimationSequence
-    );
-    await animate(
-      cells.map((cell) => {
-        return [
-          `button.cell-${cell}`,
-          { backgroundColor: "#000000" },
-          { at: "<", duration: 0.25, delay: 0.2 },
-        ];
-      }) as AnimationSequence
-    );
+    const appearanceSequence = cells.map((cell) => {
+      return [`div.cell-${cell}`, { opacity: 1 }, { at: "<", duration: 0.25 }];
+    });
+    await animate(appearanceSequence as AnimationSequence);
+
+    const disappearSequence = cells.map((cell) => {
+      return [
+        `div.cell-${cell}`,
+        { opacity: 0 },
+        { at: "<", duration: 0.25, delay: 0.2 },
+      ];
+    });
+    await animate(disappearSequence as AnimationSequence);
   };
 
   const animateScoreUpdate = async (winner: Move) => {
     const selector = `${winner === MOVES.CIRCLE ? "circle" : "cross"}-score`;
 
-    await animate(
-      `h3.${selector}`,
-      {
-        y: 12,
-        opacity: 0,
-      },
-      { duration: 0.15 }
-    );
-
-    setScore((prev) => {
-      return {
-        ...prev,
-        [winner]: prev[winner] + 1,
-      };
-    });
+    await animate(`h3.${selector}`, { y: 12, opacity: 0 }, { duration: 0.15 });
+    setScore((prev) => ({ ...prev, [winner]: prev[winner] + 1 }));
 
     await animate([
       [`h3.${selector}`, { y: 0, opacity: 1 }, { duration: 0.25 }],
@@ -83,13 +65,10 @@ const Main = () => {
     ]);
   };
 
-  const animateMoveEntrance = async (key: string, move: Move) => {
-    setGameState(new Map(gameState.set(key, move)));
-    await animate(
-      `div.move-${key}`,
-      { scale: 1.1, opacity: 1 },
-      { duration: 0.15 }
-    );
+  const animateMoveEntrance = async (id: string, move: Move) => {
+    setGameState(new Map(gameState.set(id, move)));
+    const key = `div.move-${id}`;
+    await animate(key, { scale: 1.1, opacity: 1 }, { duration: 0.15 });
   };
 
   const handleCellClick = async (x: number, y: number) => {
@@ -153,63 +132,24 @@ const Main = () => {
 
   const resetGameState = async () => {
     setIsDisabled(true);
-    await animate(
-      "div.move",
-      {
-        opacity: 1,
-        scale: 1.75,
-      },
-      {
-        duration: 0.35,
-      }
-    );
-
-    await animate(
-      "div.move",
-      {
-        opacity: 0,
-        scale: 0,
-      },
-      {
-        duration: 0.35,
-      }
-    );
-
+    await animate("div.move", { opacity: 1, scale: 1.75 }, { duration: 0.35 });
+    await animate("div.move", { opacity: 0, scale: 0 }, { duration: 0.35 });
     setGameState(new Map());
     setIsDisabled(false);
   };
 
   const resetGameScore = async () => {
     let isDefaultScore = true;
-
     for (const key of Object.keys(DEFAULT_SCORE_STATE)) {
       if (score[key as ScoreKey] !== DEFAULT_SCORE_STATE[key as ScoreKey]) {
         isDefaultScore = false;
         break;
       }
     }
-
     if (isDefaultScore) return;
-
-    await animate(
-      "h3.score",
-      {
-        opacity: 0,
-        x: 24,
-      },
-      { duration: 0.15 }
-    );
-
+    await animate("h3.score", { opacity: 0, x: 24 }, { duration: 0.15 });
     setScore({ ...DEFAULT_SCORE_STATE });
-
-    await animate(
-      "h3.score",
-      {
-        opacity: 1,
-        x: 0,
-      },
-      { duration: 0.15 }
-    );
+    await animate("h3.score", { opacity: 1, x: 0 }, { duration: 0.15 });
   };
 
   const handleLineAnimationComplete = (order: number) =>
@@ -317,7 +257,7 @@ const Cell: React.FC<CellProps> = ({
       onClick={handleClick}
       disabled={isDisabled}
       className={`${getMoveColor(move)} 
-        cell-${row}${col} h-20 w-20 bg-black flex items-center justify-center 
+        h-20 w-20 bg-black flex items-center justify-center 
         transition-colors duration-300 rounded-lg cursor-pointer m-2 relative 
         hover:bg-neutral-900/30 focus:bg-neutral-900/30 
         focus:outline-none active:bg-neutral-900/50
@@ -343,6 +283,9 @@ const Cell: React.FC<CellProps> = ({
           />
         </div>
       )}
+      <div
+        className={`cell-${row}${col} opacity-0 bg-neutral-600 absolute left-0 top-0 w-full h-full rounded-md`}
+      />
       <div className={`opacity-0 scale-0 move-${row}${col} move`}>
         {move ? move === MOVES.CIRCLE ? <Circle /> : <Cross /> : null}
       </div>
