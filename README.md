@@ -1,34 +1,69 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+## Project Title
 
-## Getting Started
+Tic-Tac-Toe. [Tap here to play.](https://tik-tack.vercel.app/)
 
-First, run the development server:
+## About the Project
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
+A very minimalistic UI for a tic-tac-toe game.
+
+**Objective and Inspiration:**
+
+My main focus for this project was to practice my animation skills. I tried to create a very minimalistic UI equipped with subtle animations for every user interaction.
+
+**Key Features:**
+
+- **Different game modes:** You have the ability to play vs a friend or vs the computer.
+- **Responsive Design:** Can be played on any screen size, desktop or mobile, and is also available as a PWA.
+- **Scoreboard:** Keeps track of how many times each side has won.
+- **User-Friendly Interface:** Very easy to navigate and intuitive UI.
+
+## Screenshots
+
+- **Person VS. Person**
+  \
+  \
+  ![Person VS. Person](/public/pvp.gif)
+
+- **Person VS. Computer**
+  \
+  \
+  ![Person VS. Computer](/public/pvc.gif)
+
+## Technologies Used
+
+- Next.js
+- Next PWA
+- Typescript
+- Framer Motion
+
+## Setup / Installation
+
+Clone the repository locally.
+
+```
+git clone https://github.com/ergi98/tik-tack.git
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Make sure tha you have the following versions installed.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+node -v
+v18.12.1
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+```
+npm -v
+8.19.2
+```
 
-## Learn More
+On the main folder install the project dependencies.
 
-To learn more about Next.js, take a look at the following resources:
+```
+npm i
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+After the installation run and navigate to **http://localhost:3000**.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+```
+npm run dev
+```
